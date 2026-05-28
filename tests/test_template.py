@@ -27,9 +27,12 @@ def _load_module(path: Path, unique_name: str):
     if not path.exists():
         raise FileNotFoundError(f"Target file not found at: {path}")
     spec = importlib.util.spec_from_file_location(unique_name, str(path))
+    if spec is None or spec.loader is None:
+        raise ImportError(f"Unable to load module spec for {path}")
+    loader = spec.loader
     mod = importlib.util.module_from_spec(spec)
     sys.modules[unique_name] = mod
-    spec.loader.exec_module(mod)
+    loader.exec_module(mod)
     return mod
 
 
